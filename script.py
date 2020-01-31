@@ -10,7 +10,7 @@ xmin = 0.0
 xmax = 1.0
 
 ## Maximum number of iterations to run
-maxiter = 101
+maxiter = 100
 
 ## wave speed
 a = 1.0
@@ -56,7 +56,7 @@ uftfs = squrewave(0.2,0.4,x,2)
 #comment out the below section if
 # you just want to analyze square wave
 #sine wave
-k = 1 #wave number
+k = 4 #wave number
 usoln = np.sin(2*np.pi*k*x)
 uftbs = np.sin(2*np.pi*k*x)
 uftcs = np.sin(2*np.pi*k*x)
@@ -98,6 +98,7 @@ for iter in range(maxiter):
     #   axs[i].relim()
     #   axs[i].autoscale_view()
     plt.pause(0.01)
+    #fig.savefig('image'+str(iter).zfill(3)+'.png')
 
 
 plt.show()

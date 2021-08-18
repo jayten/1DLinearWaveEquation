@@ -16,7 +16,7 @@ maxiter = 100
 a = 1.0
 
 ## CFL number
-cfl = 0.3
+cfl = 0.25
 
 # Define grid
 x, dx= np.linspace(xmin, xmax, npoints, endpoint=True, retstep=True)
@@ -52,29 +52,33 @@ usoln = squrewave(0.2,0.4,x,2)
 uftbs = squrewave(0.2,0.4,x,2)
 uftcs = squrewave(0.2,0.4,x,2)
 uftfs = squrewave(0.2,0.4,x,2)
+ulxwd = squrewave(0.2,0.4,x,2)
 
 #comment out the below section if
 # you just want to analyze square wave
 #sine wave
-k = 4 #wave number
+k = 8 #wave number
 usoln = np.sin(2*np.pi*k*x)
 uftbs = np.sin(2*np.pi*k*x)
 uftcs = np.sin(2*np.pi*k*x)
 uftfs = np.sin(2*np.pi*k*x)
+ulxwd = np.sin(2*np.pi*k*x)
 
 # interactive plot
 #plt.ion()
-fig, axs = plt.subplots(4)
+fig, axs = plt.subplots(5)
 fig.suptitle("Linear Wave equation")
 lnsoln, = axs[0].plot(x,usoln, 'b-', label='True Solution')
 axs[0].set_ylabel('exact solution')
 lnftbs, = axs[1].plot(x,uftbs, 'b-', label='FTBS')
 axs[1].set_ylabel('FTBS')
-lnftcs, = axs[2].plot(x,uftcs, 'b-', label='FTCS')
-axs[2].set_ylabel('FTCS')
-lnftfs, = axs[3].plot(x,uftcs, 'b-', label='FTFS')
-axs[3].set_ylabel('FTFS')
-axs[3].set_xlabel('Domain')
+lnftcs, = axs[3].plot(x,uftcs, 'b-', label='FTCS')
+axs[3].set_ylabel('FTCS')
+lnftfs, = axs[4].plot(x,uftcs, 'b-', label='FTFS')
+axs[4].set_ylabel('FTFS')
+lnlxwd, = axs[2].plot(x,ulxwd, 'b-', label='Lax-Wendroff')
+axs[2].set_ylabel('Lax-Wendroff')
+axs[4].set_xlabel('Domain')
 
 
 #linear wave equation
@@ -84,15 +88,19 @@ for iter in range(maxiter):
     #usoln = squrewave(0.2+a*iter*dt, 0.4+a*iter*dt,x,2)
     uftbs[1:] = uftbs[1:] - a*dt/dx*(uftbs[1:] - uftbs[:-1])
     uftbs[0] = uftbs[-1]
-    uftcs[1:-1] = uftcs[1:-1] - a*dt/dx*(uftcs[2:] - uftcs[:-2])
-    uftcs[0] = uftcs[0] -a*dt/dx*(uftcs[1]-uftcs[-2])
+    uftcs[1:-1] = uftcs[1:-1] - 0.5*a*dt/dx*(uftcs[2:] - uftcs[:-2])
+    uftcs[0] = uftcs[0] - 0.5*a*dt/dx*(uftcs[1]-uftcs[-2])
     uftcs[-1] = uftcs[0]
     uftfs[:-1] = uftfs[:-1] - a*dt/dx*(uftfs[1:] - uftfs[:-1])
     uftfs[-1] = uftfs[0]
+    ulxwd[1:-1] = 0.5*(cfl*(1+cfl)*ulxwd[:-2] + 2*(1-cfl**2)*ulxwd[1:-1] - cfl*(1-cfl)*ulxwd[2:])
+    ulxwd[0] = 0.5*(cfl*(1+cfl)*ulxwd[-2] + 2*(1-cfl**2)*ulxwd[0] - cfl*(1-cfl)*ulxwd[1])
+    ulxwd[-1] = ulxwd[0]
     lnsoln.set_ydata(usoln)
     lnftbs.set_ydata(uftbs)
     lnftcs.set_ydata(uftcs)
     lnftfs.set_ydata(uftfs)
+    lnlxwd.set_ydata(ulxwd)
     # reset the yrange while plotting
     #for i in range(4):
     #   axs[i].relim()
